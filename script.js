@@ -1,63 +1,23 @@
-const products = [
-  { 
-    id: 1, 
-    name: "ورده", 
-    price: 75, 
-    img: "./flower/purple.jpg", 
-    desc: "Soft lavender scent perfect for relaxation.", 
-    colors: ["./flower/purple.jpg","./flower/purple.jpg","../flower/gold.jpg"] 
-  },
-  { 
-    id: 2, 
-    name: "مربع بابليلز", 
-    price: 75, 
-    img: "./Bubbles/purple.jpg", 
-    desc: "Romantic rose fragrance for special moments.", 
-    colors: ["./Bubbles/purple.jpg", "./Bubbles/toby.jpg", "./Bubbles/mix.jpg", ] 
-  },
-  { 
-    id: 3, 
-    name: "كوب شمعي ", 
-    price: 85, 
-    img: "./cup/purple.jpg", 
-    desc: "Sweet vanilla fragrance that soothes the soul.", 
-    colors: ["./cup/red.jpg","./cup/gold.jpg",] 
-  },
-  { 
-    id: 4, 
-    name: "ابوالهول", 
-    price: 90, 
-    img: "./sphinx/1.jpg", 
-    desc: "Fresh jasmine aroma for a calm atmosphere.", 
-    colors: ["./sphinx/gold.jpg","./sphinx/toby.jpg",] 
-  }
-];
-
 let cart = [];
 let selectedColors = {}; // تخزين الصورة المختارة
 
-function renderProducts() {
-  const container = document.getElementById("products");
-  container.innerHTML = "";
-  products.forEach(p => {
-    container.innerHTML += `
-      <div class="col-12 col-sm-6 col-md-4">
-        <div class="card h-100 text-center p-3 slide-up">
-          <div class="ratio ratio-1x1">
-            <img src="${p.img}" class="card-img-top img-fluid" alt="${p.name}" style="object-fit: cover;" onclick="showColors(${p.id})">
-          </div>
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">${p.name}</h5>
-            <p class="text-muted small flex-grow-1">${p.desc}</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="fw-bold">${p.price} EGP</span>
-              <button class="btn btn-sm btn-dark" onclick="addToCart(${p.id})">Buy</button>
-            </div>
-          </div>
-        </div>
-      </div>`;
+function getProductsFromHTML() {
+  const cards = document.querySelectorAll("#products .card");
+  let products = [];
+  cards.forEach(card => {
+    products.push({
+      id: parseInt(card.dataset.id),
+      name: card.dataset.name,
+      price: parseFloat(card.dataset.price),
+      img: card.dataset.img,
+      desc: card.dataset.desc,
+      colors: JSON.parse(card.dataset.colors)
+    });
   });
+  return products;
 }
+
+const products = getProductsFromHTML();
 
 function showColors(id) {
   const product = products.find(p => p.id === id);
@@ -65,7 +25,8 @@ function showColors(id) {
   container.innerHTML = "";
   product.colors.forEach(c => {
     container.innerHTML += `
-      <img src="${c}" class="color-img" style="width:70px;height:70px;object-fit:cover;margin:5px;cursor:pointer;border-radius:5px;" onclick="selectColor(${id}, '${c}')">
+      <img src="${c}" class="color-img" 
+           onclick="selectColor(${id}, '${c}')">
     `;
   });
   new bootstrap.Modal(document.getElementById('colorModal')).show();
@@ -80,7 +41,7 @@ function addToCart(id) {
   const product = products.find(p => p.id === id);
   if (!product) return;
 
-  const color = selectedColors[id] || null; // لو المستخدم ما اختارش صورة
+  const color = selectedColors[id] || null; 
   const existing = cart.find(p => p.id === id && p.color === color);
   if (existing) {
     existing.qty++;
@@ -135,4 +96,3 @@ function checkout() {
 }
 
 document.getElementById("year").innerText = new Date().getFullYear();
-renderProducts();
